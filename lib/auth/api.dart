@@ -70,6 +70,20 @@ class API {
   //   }
   // }
 
+// users(collection) -> user_id(document) -> id(field)
+//for getting user_id from firestore (ajaira , vule banaisi)
+  // static Future<String> getConversationId(String id) async {
+  //   String userId = "";
+  //   await FirebaseFirestore.instance.collection("users").doc(id).get().then(
+  //     (value) {
+  //       if (value.exists) {
+  //         userId = value.data()!['id'];
+  //       }
+  //     },
+  //   );
+  //   return userId;
+  // }
+
 //chats(collection) -> conversation_id(document) -> messages(collection) -> message(document)
 //for getting all the messages from a specific id from firestore
   // static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(

@@ -1,39 +1,40 @@
 class Messages {
   Messages({
-    required this.toId,
     required this.msg,
-    required this.read,
-    required this.type,
-    required this.sent,
+    required this.toId,
     required this.fromId,
+    required this.read,
+    required this.sent,
+    required this.type,
   });
-  late final String toId;
-  late final String msg;
-  late final String read;
-  late final MsgType type;
-  late final String sent;
-  late final String fromId;
 
-  Messages.fromJson(Map<String, dynamic> json) {
-    toId = json['toId'].toString();
-    msg = json['msg'].toString();
-    read = json['read'].toString();
-    type = json['type'].toString() == MsgType.image.name
-        ? MsgType.image
-        : MsgType.text;
-    sent = json['sent'].toString();
-    fromId = json['fromId'].toString();
+  late final String msg;
+  late final String toId;
+  late final String fromId;
+  late final String read;
+  late final String sent;
+  late final MsgType type;
+
+  Messages.fromJson(json) {
+    msg = json['msg'] ?? 'NA';
+    toId = json['toId'] ?? 'NA';
+    fromId = json['fromId'] ?? 'NA';
+    read = json['read'];
+    sent = json['sent'] ?? 'NA';
+    type = json['type'].toString() == MsgType.text.name
+        ? MsgType.text
+        : MsgType.image;
   }
 
   Map<String, dynamic> toJson() {
-    final _data = <String, dynamic>{};
-    _data['toId'] = toId;
-    _data['msg'] = msg;
-    _data['read'] = read;
-    _data['type'] = type;
-    _data['sent'] = sent;
-    _data['fromId'] = fromId;
-    return _data;
+    final data = <String, dynamic>{};
+    data['msg'] = msg;
+    data['toId'] = toId;
+    data['fromId'] = fromId;
+    data['read'] = read;
+    data['sent'] = sent;
+    data['type'] = type.name;
+    return data;
   }
 }
 

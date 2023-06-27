@@ -8,7 +8,8 @@ import 'package:we_chat/widgets/message_card.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatUser user;
-  ChatScreen({required this.user});
+
+  const ChatScreen({super.key, required this.user});
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
