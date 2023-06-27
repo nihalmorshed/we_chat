@@ -24,7 +24,7 @@ class API {
 
   // for sending message
   static Future<void> sendMessage(
-      ChatUser chatUser, String msg, Type type) async {
+      ChatUser chatUser, String msg, MsgType type) async {
     //message sending time (also used as id)
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -68,20 +68,6 @@ class API {
   //   } else {
   //     return "${id2}_$id1"; //for example: 456_123 where 456 is the id of the sender and 123 is the id of the current user
   //   }
-  // }
-
-// users(collection) -> user_id(document) -> id(field)
-//for getting user_id from firestore (ajaira , vule banaisi)
-  // static Future<String> getConversationId(String id) async {
-  //   String userId = "";
-  //   await FirebaseFirestore.instance.collection("users").doc(id).get().then(
-  //     (value) {
-  //       if (value.exists) {
-  //         userId = value.data()!['id'];
-  //       }
-  //     },
-  //   );
-  //   return userId;
   // }
 
 //chats(collection) -> conversation_id(document) -> messages(collection) -> message(document)

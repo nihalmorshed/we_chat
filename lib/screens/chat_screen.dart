@@ -120,7 +120,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 API.sendMessage(
                   widget.user,
                   _messageController.text,
-                  Type.text,
+                  MsgType.text,
                 );
                 _messageController.clear();
               }
