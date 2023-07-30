@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:we_chat/auth/api.dart';
 import 'package:we_chat/constants.dart';
 import 'package:we_chat/models/messages.dart';
+import 'package:we_chat/utils/mydate.dart';
 
 class MessageCard extends StatefulWidget {
   final Messages message;
@@ -15,12 +17,16 @@ class _MessageCardState extends State<MessageCard> {
   @override
   Widget build(BuildContext context) {
     return FirebaseAuth.instance.currentUser!.uid == widget.message.fromId
-        ? _blueMessage()
-        : _greenMessage();
+        ? _greenMessage()
+        : _blueMessage();
   }
 
   //senders message
   Widget _blueMessage() {
+    //update last message read if sender is not the current user
+    if (widget.message.read.isEmpty) {
+      API.updateMessageReadStatus(widget.message);
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -59,7 +65,10 @@ class _MessageCardState extends State<MessageCard> {
         Padding(
           padding: EdgeInsets.only(right: mq.width * 0.02),
           child: Text(
-            widget.message.sent,
+            MyDateUtil.getFormattedTime(
+              context: context,
+              time: widget.message.sent,
+            ),
             style: const TextStyle(
               color: Colors.grey,
               fontSize: 12.0,
@@ -78,21 +87,26 @@ class _MessageCardState extends State<MessageCard> {
         //show the time when the message was read
         Row(
           children: [
+            SizedBox(width: mq.width * 0.04),
             //showing the double tick icon for seen messages
-            Padding(
-              padding: EdgeInsets.only(
-                left: mq.width * 0.02,
+            if (widget.message.read.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(
+                  left: mq.width * 0.02,
+                ),
+                child: const Icon(
+                  Icons.done_all,
+                  color: Colors.grey,
+                  size: 20.0,
+                ),
               ),
-              child: const Icon(
-                Icons.done_all,
-                color: Colors.grey,
-                size: 20.0,
-              ),
-            ),
 
             //showing the time when the message was seen
             Text(
-              widget.message.read,
+              MyDateUtil.getFormattedTime(
+                context: context,
+                time: widget.message.sent,
+              ),
               style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 12.0,
