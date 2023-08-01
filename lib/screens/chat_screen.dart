@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:we_chat/auth/api.dart';
 import 'package:we_chat/constants.dart';
@@ -15,68 +17,104 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  //whether to show emoji keyboard or not
+  bool _showEmoji = false;
   //storing the list of messages
   List<Messages> _messageList = [];
   //handling the message typed by the user in the text field
   final TextEditingController _messageController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          flexibleSpace: _appBar(),
-        ),
-        backgroundColor: const Color.fromARGB(255, 242, 215, 181),
-        body: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder(
-                stream: API.getAllMessages(widget.user),
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.none:
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    case ConnectionState.active:
-                    case ConnectionState.done:
-                      final docs = snapshot.data!.docs;
-                      _messageList = docs
-                          .map((e) => Messages.fromJson(e.data()))
-                          .toList(); // .map is used to convert the list of documents to list of ChatUser objects
-
-                      if (_messageList.isNotEmpty) {
-                        return ListView.builder(
-                          padding: EdgeInsets.only(
-                            top: mq.height * 0.012,
-                          ),
-                          itemCount: _messageList.length,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return MessageCard(
-                              message: _messageList[index],
-                            );
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: Text(
-                            'Say Hii!!  🖐 ',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }
-                  }
-                },
-              ),
+    return GestureDetector(
+      // to close the keyboard when user taps anywhere on the screen
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: SafeArea(
+        child: WillPopScope(
+          //if emoji is showing and presses back button then close the emoji keyboard
+          // else close the app
+          onWillPop: () {
+            if (_showEmoji) {
+              setState(() {
+                _showEmoji = !_showEmoji;
+              });
+              return Future.value(false);
+            } else {
+              return Future.value(true);
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              flexibleSpace: _appBar(),
             ),
-            _chatInput(),
-          ],
+            backgroundColor: const Color.fromARGB(255, 242, 215, 181),
+            body: Column(
+              children: [
+                Expanded(
+                  child: StreamBuilder(
+                    stream: API.getAllMessages(widget.user),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                        case ConnectionState.none:
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        case ConnectionState.active:
+                        case ConnectionState.done:
+                          final docs = snapshot.data!.docs;
+                          _messageList = docs
+                              .map((e) => Messages.fromJson(e.data()))
+                              .toList(); // .map is used to convert the list of documents to list of ChatUser objects
+
+                          if (_messageList.isNotEmpty) {
+                            return ListView.builder(
+                              padding: EdgeInsets.only(
+                                top: mq.height * 0.012,
+                              ),
+                              itemCount: _messageList.length,
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return MessageCard(
+                                  message: _messageList[index],
+                                );
+                              },
+                            );
+                          } else {
+                            return const Center(
+                              child: Text(
+                                'Say Hii!!  🖐 ',
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }
+                      }
+                    },
+                  ),
+                ),
+                _chatInput(),
+                //show emoji keyboard on emoji button press
+                SizedBox(
+                  height: _showEmoji ? mq.height * 0.3 : 0,
+                  child: EmojiPicker(
+                    textEditingController:
+                        _messageController, // pass here the same [TextEditingController] that is connected to your input field
+                    config: Config(
+                      bgColor: const Color.fromARGB(255, 242, 215, 181),
+                      columns: 8,
+                      emojiSizeMax: 32 *
+                          (defaultTargetPlatform == TargetPlatform.iOS
+                              ? 1.30
+                              : 1.0),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -92,7 +130,12 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           //emoji button
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              setState(() {
+                _showEmoji = !_showEmoji;
+              });
+            },
             icon: const Icon(
               Icons.emoji_emotions_outlined,
               color: Colors.orangeAccent,
@@ -104,6 +147,12 @@ class _ChatScreenState extends State<ChatScreen> {
               controller: _messageController,
               keyboardType: TextInputType.multiline,
               maxLines: null,
+              onTap: () {
+                if (_showEmoji)
+                  setState(() {
+                    _showEmoji = false;
+                  });
+              },
               decoration: const InputDecoration(
                 hintText: 'Type a message',
                 hintStyle: TextStyle(
