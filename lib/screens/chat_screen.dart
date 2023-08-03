@@ -17,6 +17,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final ScrollController _scrollController = ScrollController();
   //whether to show emoji keyboard or not
   bool _showEmoji = false;
   //storing the list of messages
@@ -69,6 +70,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
                           if (_messageList.isNotEmpty) {
                             return ListView.builder(
+                              controller: _scrollController,
+                              reverse: false,
                               padding: EdgeInsets.only(
                                 top: mq.height * 0.012,
                               ),
@@ -173,6 +176,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   MsgType.text,
                 );
                 _messageController.clear();
+                _scrollController.animateTo(
+                  _scrollController.position.maxScrollExtent + 100,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
               }
             },
             icon: const Icon(
